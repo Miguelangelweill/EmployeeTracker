@@ -18,8 +18,10 @@ function beggining(){
         if (response.choice == choices[0]) {
           getAllEmployees();
         } else if (response.choice == choices[1]) {
-            employeeRole();
+          employeeRole();
         } else if (response.choice == choices[2]) {
+          getManager()
+        } else if (response.choice == choices[3]) {
           //if we wish to end the application we close the connection
           connection.end();
         }
@@ -49,4 +51,18 @@ function employeeRole() {
         beggining();
       }
     );
+}
+function getManager() {
+  connection.query("SELECT * FROM EMPLOYEE WHERE MANAGER_ID=1", function (
+    error,
+    
+    result
+  ) {
+    if (error) {
+      console.log(error);
+    }
+
+    console.table(result);
+    beggining();
+  });
 }
