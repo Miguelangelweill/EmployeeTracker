@@ -1,0 +1,22 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "description": "This is an application to keep track of you're employees as well being able to add and remove employees",
+  "main": "index.js",
+  "scripts": {
+    "test": "pineapple"
+  },
+  "repository": {
+    "type": "git",
+    "url": "miguelangelWeill"
+  },
+  "keywords": [
+    "pineapple"
+  ],
+  "author": "Miguelangel Weill",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
