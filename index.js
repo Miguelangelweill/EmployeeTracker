@@ -7,11 +7,12 @@ const connection = require("./Assets/db/db.js");
 function beggining() {
   //Here we have my array of choices
   const choices = [
-    "View all of the employees",
-    "View employees by department",
-    "View all employees by manager",
-    "Add employee",
-    "exit",
+    "View all of the employees.",
+    "View employees by department.",
+    "View all employees by manager.",
+    "Add employee.",
+    "Remove employee.",
+    "Exit.",
   ];
   //The start of the prompt
   inquirer
@@ -35,6 +36,8 @@ function beggining() {
       } else if (response.choice == choices[3]) {
         addEmployee();
       } else if (response.choice == choices[4]) {
+        removeEmployee();
+      } else if (response.choice == choices[5]) {
         //if we wish to end the application we close the connection
         connection.end();
       }
@@ -115,7 +118,7 @@ function addEmployee() {
         message: "Is this employee a Manager?",
         name: "manager",
       },
-    ])//Here is what I am going to do with the response.
+    ]) //Here is what I am going to do with the response.
     .then((response) => {
       //Creating a manager variable to make sure that the values are inputed the way that they are intended to0.
       let manager;
@@ -148,15 +151,56 @@ function addEmployee() {
             [result.insertId],
             function (error, result) {
               if (error) {
-                console.log("There was an error looking for the employee after it being created: ",error);
+                console.log(
+                  "There was an error looking for the employee after it being created: ",
+                  error
+                );
               }
-              console.log("The employee was created succsefully!!!")
+              console.log("The employee was created succsefully!!!");
               console.table(result);
               beggining();
             }
           );
         }
       );
-
     });
+}
+
+function removeEmployee() {
+  connection.query("SELECT * FROM EMPLOYEE_TRACKER.EMPLOYEE;", function (
+    error,
+    result
+  ) {
+    if (error) {
+      console.log(error);
+    }
+    console.table(result);
+  });
+  setTimeout(function () {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the number ID of the employee you wish to remove?",
+          name: "employeeID",
+        },
+      ])
+      .then((response) => {
+        connection.query(
+          "DELETE FROM EMPLOYEE WHERE ID =?;",
+          [response.employeeID],
+          function (error, result) {
+            if (error) {
+              console.log(error);
+            }
+            console.log(
+              "The employee with the ID of ",
+              response.employeeID,
+              " Has been successfully removed!!!!!"
+            );
+            beggining();
+          }
+        );
+      });
+  }, 700);
 }
