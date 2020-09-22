@@ -11,6 +11,7 @@ function beggining() {
     "View employees by department.",
     "View all employees by manager.",
     "Add employee.",
+    "Add department.",
     "Remove employee.",
     "Update employee role.",
     "Exit.",
@@ -36,11 +37,13 @@ function beggining() {
         getManager();
       } else if (response.choice == choices[3]) {
         addEmployee();
-      } else if (response.choice == choices[4]) {
-        removeEmployee();
+      }else if (response.choice == choices[4]) {
+        addDepartment();
       } else if (response.choice == choices[5]) {
-        updateEmployee();
+        removeEmployee();
       } else if (response.choice == choices[6]) {
+        updateEmployee();
+      } else if (response.choice == choices[7]) {
         //if we wish to end the application we close the connection
         connection.end();
       }
@@ -178,6 +181,39 @@ function addEmployee() {
         }
       );
     });
+}
+
+//This is the function to add a department to the database
+function addDepartment(){
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the name of the department you wish to add?",
+          name: "departmentName",
+        }
+      ]) //Here is what I am going to do with the response.
+      .then((response) => {
+        let department = response.departmentName
+        department=department.toUpperCase();
+        //This is the query that i am passing to my database, I use '?' to prevent my query from being injected
+        connection.query(
+          "INSERT INTO DEPARTMENT (DEPARTMENT_NAME) VALUES (?);",
+          [department],
+          function (error, result) {
+            if (error) {
+              console.log(
+                "We where not able to create the employee, try again",
+                error
+              );
+            }else{
+              console.log("The department has been created");
+            }
+            beggining();
+          }
+
+        );
+      });
 }
 //This is the function where i remove an employee.
 function removeEmployee() {
