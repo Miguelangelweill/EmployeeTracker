@@ -2,6 +2,7 @@
 const inquirer = require("inquirer");
 //Here i am importing the start of my server fron the db folder
 const connection = require("./Assets/db/db.js");
+const welcomeImage = require("./Assets/db/image.js");
 
 //This is the function to prompt all of the question's and start the application
 function beggining() {
@@ -63,7 +64,11 @@ function beggining() {
     });
 }
 //I am beggining the application
-beggining();
+welcomeImage();
+setTimeout(function(){
+  beggining();
+},700)
+
 //This is a function where I can get all of the employees without restarting the application
 function empoloyeeNoRestart() {
   connection.query("SELECT * FROM EMPLOYEE_TRACKER.EMPLOYEE;", function (
@@ -292,7 +297,7 @@ function addRole() {
             //This is the query that i am passing to my database, I use '?' to prevent my query from being injected
             connection.query(
               "INSERT INTO ROLE (ROLE_TITLE, ROLE_SALARY, DEPARTMENT_ID) VALUES (?, ?, ?);",
-              [role, salary, departmentID],
+              [role,salary,departmentID],
               function (error, result) {
                 if (error) {
                   console.log(
@@ -375,6 +380,7 @@ function removeDepartment() {
   }, 500);
 }
 function removeRole() {
+  //I Create this funtion so i dont have to write it twize on like 416                                         
   function roleQuery() {
     connection.query("SELECT * FROM ROLE;", function (error, result) {
       if (error) {
