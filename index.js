@@ -93,7 +93,7 @@ function getAllEmployees() {
 //This is the function to get the employees by role.
 function employeeRole() {
   connection.query(
-    "SELECT EMPLOYEE.FIRST_NAME,EMPLOYEE.LAST_NAME,ROLE.ROLE_TITLE FROM EMPLOYEE INNER JOIN ROLE ON ROLE.ID=EMPLOYEE.ROLE_ID",
+    "SELECT EMPLOYEE.FIRST_NAME,EMPLOYEE.LAST_NAME,ROLE.ROLE_TITLE FROM EMPLOYEE INNER JOIN ROLE ON ROLE.ID=EMPLOYEE.ROLE_ID;",
     function (error, result) {
       if (error) {
         console.log(error);
@@ -107,7 +107,7 @@ function employeeRole() {
 
 // This is the function to get the employees that are manager's
 function getManager() {
-  connection.query("SELECT * FROM EMPLOYEE WHERE MANAGER_ID=1", function (
+  connection.query("SELECT * FROM EMPLOYEE WHERE MANAGER_ID=1;", function (
     error,
 
     result
@@ -121,10 +121,7 @@ function getManager() {
 }
 //Here is where we get all of the departments
 function getDeparments() {
-  connection.query("SELECT * FROM DEPARTMENT;", function (
-    error,
-    result
-  ) {
+  connection.query("SELECT * FROM DEPARTMENT;", function (error, result) {
     if (error) {
       console.log(error);
     }
@@ -190,7 +187,7 @@ function addEmployee() {
           //I want to return a table with the employee that was just created to show it's succsses.
           // There for I run another query to the database to get the employee that was just created.
           connection.query(
-            "SELECT * FROM EMPLOYEE WHERE ID=?",
+            "SELECT * FROM EMPLOYEE WHERE ID=?;",
             [result.insertId],
             function (error, result) {
               if (error) {
@@ -234,7 +231,7 @@ function addDepartment() {
             );
           } else {
             connection.query(
-              "SELECT * FROM DEPARTMENT WHERE ID=?",
+              "SELECT * FROM DEPARTMENT WHERE ID=?;",
               [result.insertId],
               function (error, result) {
                 if (error) {
@@ -284,7 +281,7 @@ function addRole() {
             {
               type: "input",
               message: "What is the department ID for this role?",
-              name:"departmentID"
+              name: "departmentID",
             },
           ])
           .then((response) => {
@@ -295,7 +292,7 @@ function addRole() {
             //This is the query that i am passing to my database, I use '?' to prevent my query from being injected
             connection.query(
               "INSERT INTO ROLE (ROLE_TITLE, ROLE_SALARY, DEPARTMENT_ID) VALUES (?, ?, ?);",
-              [role,salary,departmentID],
+              [role, salary, departmentID],
               function (error, result) {
                 if (error) {
                   console.log(
@@ -304,7 +301,7 @@ function addRole() {
                   );
                 } else {
                   connection.query(
-                    "SELECT * FROM ROLE WHERE ID=?",
+                    "SELECT * FROM ROLE WHERE ID=?;",
                     [result.insertId],
                     function (error, result) {
                       if (error) {
@@ -377,53 +374,53 @@ function removeDepartment() {
       });
   }, 500);
 }
-function removeRole(){
+function removeRole() {
   function roleQuery() {
-  connection.query("SELECT * FROM ROLE;", function (error, result) {
-    if (error) {
-      console.log(
-        "There has been an error retrieving the department's",
-        error
-      );
-    } else {
-      console.table(result);
-    }
-  });
-}
-  roleQuery();
-setTimeout(function () {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What is the name of the role you wish to remove",
-        name: "roleRemove",
-      },
-    ]) //Here is what I am going to do with the response.
-    .then((response) => {
-      let roleRemoveHandler = response.roleRemove;
-      roleRemoveHandler = roleRemoveHandler.toUpperCase();
-
-      connection.query(
-        "DELETE FROM DEPARTMENT WHERE DEPARTMENT_NAME =?;",
-        [departmentRemoveHandler],
-        function (error, result) {
-          if (error) {
-            console.log(
-              "The department you have chosen does not exist",
-              error
-            );
-          } else {
-            console.log("The department has been removed succsesfully!!!");
-            roleQuery();
-            setTimeout(function () {
-              beggining();
-            }, 400);
-          }
-        }
-      );
+    connection.query("SELECT * FROM ROLE;", function (error, result) {
+      if (error) {
+        console.log(
+          "There has been an error retrieving the department's",
+          error
+        );
+      } else {
+        console.table(result);
+      }
     });
-}, 500);
+  }
+  roleQuery();
+  setTimeout(function () {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the name of the role you wish to remove",
+          name: "roleRemove",
+        },
+      ]) //Here is what I am going to do with the response.
+      .then((response) => {
+        let roleRemoveHandler = response.roleRemove;
+        roleRemoveHandler = roleRemoveHandler.toUpperCase();
+
+        connection.query(
+          "DELETE FROM ROLE WHERE ROLE_TITLE =?;",
+          [roleRemoveHandler],
+          function (error, result) {
+            if (error) {
+              console.log(
+                "The department you have chosen does not exist",
+                error
+              );
+            } else {
+              console.log("The department has been removed succsesfully!!!");
+              roleQuery();
+              setTimeout(function () {
+                beggining();
+              }, 400);
+            }
+          }
+        );
+      });
+  }, 500);
 }
 
 //This is the function where i remove an employee.
@@ -453,11 +450,10 @@ function removeEmployee() {
               response.employeeID,
               " Has been successfully removed!!!!!"
             );
-            empoloyeeNoRestart()
-            setTimeout(function(){
+            empoloyeeNoRestart();
+            setTimeout(function () {
               beggining();
-            },200)
-            
+            }, 200);
           }
         );
       });
@@ -526,14 +522,17 @@ function updateEmployee() {
                 response.IDUpdate,
                 "has been successfully updated!!!!!"
               );
-              connection.query("SELECT * FROM EMPLOYEE WHERE ID=?", [response.IDUpdate],function(error,result){
-                console.table(result)
-              })
+              connection.query(
+                "SELECT * FROM EMPLOYEE WHERE ID=?;",
+                [response.IDUpdate],
+                function (error, result) {
+                  console.table(result);
+                }
+              );
             }
-            setTimeout(function(){
+            setTimeout(function () {
               beggining();
-            },200)
-            
+            }, 200);
           }
         );
       });
