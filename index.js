@@ -12,6 +12,7 @@ function beggining() {
     "View all employees by manager.",
     "Add employee.",
     "Add department.",
+    "Add role",
     "Remove a department.",
     "Remove employee.",
     "Update employee role.",
@@ -41,13 +42,16 @@ function beggining() {
       } else if (response.choice == choices[4]) {
         addDepartment();
       } else if (response.choice == choices[5]) {
+        addRole();
+      } else if (response.choice == choices[6]) {
         removeDepartment();
-      }else if (response.choice == choices[6]) {
-        removeEmployee();
       } else if (response.choice == choices[7]) {
-        updateEmployee();
+        removeEmployee();
       } else if (response.choice == choices[8]) {
+        updateEmployee();
+      } else if (response.choice == choices[9]) {
         //if we wish to end the application we close the connection
+        console.log("BYE BYE!!!!");
         connection.end();
       }
     });
@@ -225,31 +229,102 @@ function addDepartment() {
               }
             );
           }
-          setTimeout(function(){
+          setTimeout(function () {
             beggining();
-          },700)
-          
+          }, 700);
         }
       );
     });
 }
+//This is the function where we add roles
+function addRole() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the role you wish to add?",
+        name: "roleTitle",
+      },
+      {
+        type: "input",
+        message: "What is the salary for this department? (Only the ammount)",
+        name: "roleSalary",
+      },
+    ]) //Here is what I am going to do with the response.
+    .then((response1) => {
+      connection.query("SELECT * FROM DEPARTMENT;", function (error, result) {
+        if (error) {
+          console.log("Where not able to get the departments ", error);
+        }
+        console.log("Department's");
+        console.table(result);
+      });
+      setTimeout(function () {
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              message: "What is the department ID for this role?",
+              name:"departmentID"
+            },
+          ])
+          .then((response) => {
+            let role = response1.roleTitle;
+            role = role.toUpperCase();
+            let salary = response1.roleSalary;
+            let departmentID = response.departmentID;
+            //This is the query that i am passing to my database, I use '?' to prevent my query from being injected
+            connection.query(
+              "INSERT INTO ROLE (ROLE_TITLE, ROLE_SALARY, DEPARTMENT_ID) VALUES (?, ?, ?);",
+              [role,salary,departmentID],
+              function (error, result) {
+                if (error) {
+                  console.log(
+                    "We where not able to create the employee, try again",
+                    error
+                  );
+                } else {
+                  connection.query(
+                    "SELECT * FROM ROLE WHERE ID=?",
+                    [result.insertId],
+                    function (error, result) {
+                      if (error) {
+                        console.log(
+                          "There was an error looking for the role after it being created: ",
+                          error
+                        );
+                      }
+                      console.log("The role has been created");
+                      console.table(result);
+                    }
+                  );
+                }
+                setTimeout(function () {
+                  beggining();
+                }, 700);
+              }
+            );
+          });
+      }, 200);
+    });
+}
+
 //This is the function to remove a department
 function removeDepartment() {
-  function departmentQuery(){
-    connection.query(
-    "SELECT * FROM DEPARTMENT;",
-    function (error, result) {
+  function departmentQuery() {
+    connection.query("SELECT * FROM DEPARTMENT;", function (error, result) {
       if (error) {
-        console.log("There has been an error retrieving the department's",error);
-      }else{
+        console.log(
+          "There has been an error retrieving the department's",
+          error
+        );
+      } else {
         console.table(result);
       }
-    }
-
-  );
+    });
   }
-  departmentQuery()
-  setTimeout(function(){
+  departmentQuery();
+  setTimeout(function () {
     inquirer
       .prompt([
         {
@@ -263,25 +338,25 @@ function removeDepartment() {
         departmentRemoveHandler = departmentRemoveHandler.toUpperCase();
 
         connection.query(
-          "DELETE FROM DEPARTMENT WHERE DEPARTMENT_NAME =?;",[departmentRemoveHandler],
+          "DELETE FROM DEPARTMENT WHERE DEPARTMENT_NAME =?;",
+          [departmentRemoveHandler],
           function (error, result) {
             if (error) {
-              console.log("The department you have chosen does not exist", error);
+              console.log(
+                "The department you have chosen does not exist",
+                error
+              );
             } else {
               console.log("The department has been removed succsesfully!!!");
               departmentQuery();
-              setTimeout(function(){
+              setTimeout(function () {
                 beggining();
-              },400)
+              }, 400);
             }
           }
-
         );
-
       });
-
-  },500)
-
+  }, 500);
 }
 
 //This is the function where i remove an employee.
