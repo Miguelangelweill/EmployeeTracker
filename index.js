@@ -21,7 +21,7 @@ function beggining() {
     .prompt([
       {
         type: "list",
-        message: "Welcome!!. What would you like to do today?",
+        message: "What you would like to do?",
         //Here I declare the array where I have my option's stored in
         choices: choices,
         name: "choice",
@@ -37,7 +37,7 @@ function beggining() {
         getManager();
       } else if (response.choice == choices[3]) {
         addEmployee();
-      }else if (response.choice == choices[4]) {
+      } else if (response.choice == choices[4]) {
         addDepartment();
       } else if (response.choice == choices[5]) {
         removeEmployee();
@@ -52,16 +52,16 @@ function beggining() {
 //I am beggining the application
 beggining();
 //This is a function where I can get all of the employees without restarting the application
-function empoloyeeNoRestart(){
-    connection.query("SELECT * FROM EMPLOYEE_TRACKER.EMPLOYEE;", function (
-      error,
-      result
-    ) {
-      if (error) {
-        console.log(error);
-      }
-      console.table(result);
-    });
+function empoloyeeNoRestart() {
+  connection.query("SELECT * FROM EMPLOYEE_TRACKER.EMPLOYEE;", function (
+    error,
+    result
+  ) {
+    if (error) {
+      console.log(error);
+    }
+    console.table(result);
+  });
 }
 //The function to get all of the employee's
 function getAllEmployees() {
@@ -184,36 +184,51 @@ function addEmployee() {
 }
 
 //This is the function to add a department to the database
-function addDepartment(){
-    inquirer
-      .prompt([
-        {
-          type: "input",
-          message: "What is the name of the department you wish to add?",
-          name: "departmentName",
-        }
-      ]) //Here is what I am going to do with the response.
-      .then((response) => {
-        let department = response.departmentName
-        department=department.toUpperCase();
-        //This is the query that i am passing to my database, I use '?' to prevent my query from being injected
-        connection.query(
-          "INSERT INTO DEPARTMENT (DEPARTMENT_NAME) VALUES (?);",
-          [department],
-          function (error, result) {
-            if (error) {
-              console.log(
-                "We where not able to create the employee, try again",
-                error
-              );
-            }else{
-              console.log("The department has been created");
-            }
-            beggining();
+function addDepartment() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the department you wish to add?",
+        name: "departmentName",
+      },
+    ]) //Here is what I am going to do with the response.
+    .then((response) => {
+      let department = response.departmentName;
+      department = department.toUpperCase();
+      //This is the query that i am passing to my database, I use '?' to prevent my query from being injected
+      connection.query(
+        "INSERT INTO DEPARTMENT (DEPARTMENT_NAME) VALUES (?);",
+        [department],
+        function (error, result) {
+          if (error) {
+            console.log(
+              "We where not able to create the employee, try again",
+              error
+            );
+          } else {
+            connection.query(
+              "SELECT * FROM DEPARTMENT WHERE ID=?",
+              [result.insertId],
+              function (error, result) {
+                if (error) {
+                  console.log(
+                    "There was an error looking for the employee after it being created: ",
+                    error
+                  );
+                }
+                console.log("The department has been created");
+                console.table(result);
+              }
+            );
           }
-
-        );
-      });
+          setTimeout(function(){
+            beggining();
+          },700)
+          
+        }
+      );
+    });
 }
 //This is the function where i remove an employee.
 function removeEmployee() {
@@ -252,62 +267,69 @@ function removeEmployee() {
 //This is the function where I update the employee's
 function updateEmployee() {
   empoloyeeNoRestart();
-  setTimeout(function(){
-  let updateChoices=["Fist name","Last name","Role ID","Manager ID(1 or null)"]
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What is the ID of the employee you wish to update?",
-        name: "IDUpdate",
-      },
-      {
-        type: "list",
-        message: "What would you like to update?",
-        choices: updateChoices,
-        name: "updateChoice",
-      },
-      {
-        type: "input",
-        message: "Write your change",
-        name: "updateChange",
-      },
-    ])
-    .then((response) => {
-      let updateColumn;
-      switch (response.updateChoice) {
-        case "Fist name":
-          updateColumn = "UPDATE EMPLOYEE SET FIRST_NAME=? WHERE ID=?;";
-          break;
-        case "Last name":
-          updateColumn = "UPDATE EMPLOYEE SET LAST_NAME=? WHERE ID=?;";
-          break;
-        case "Role ID":
-          updateColumn = "UPDATE EMPLOYEE SET ROLE_ID=? WHERE ID=?;";
-          break;
-        case "Manager ID":
+  setTimeout(function () {
+    let updateChoices = [
+      "Fist name",
+      "Last name",
+      "Role ID",
+      "Manager ID(1 or null)",
+    ];
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the ID of the employee you wish to update?",
+          name: "IDUpdate",
+        },
+        {
+          type: "list",
+          message: "What would you like to update?",
+          choices: updateChoices,
+          name: "updateChoice",
+        },
+        {
+          type: "input",
+          message: "Write your change",
+          name: "updateChange",
+        },
+      ])
+      .then((response) => {
+        let updateColumn;
+        switch (response.updateChoice) {
+          case "Fist name":
+            updateColumn = "UPDATE EMPLOYEE SET FIRST_NAME=? WHERE ID=?;";
+            break;
+          case "Last name":
+            updateColumn = "UPDATE EMPLOYEE SET LAST_NAME=? WHERE ID=?;";
+            break;
+          case "Role ID":
+            updateColumn = "UPDATE EMPLOYEE SET ROLE_ID=? WHERE ID=?;";
+            break;
+          case "Manager ID":
             updateColumn = "UPDATE EMPLOYEE SET MANAGER_ID=? WHERE ID=?;";
-          break;
-        default:
-          break;
-      }
-      connection.query(
-        updateColumn,
-        [response.updateChange, response.IDUpdate],
-        function (error, result) {
-          if (error) {
-            console.log("There has been a mistake updating the employee: ",error);
-          }else{
-            console.log(
-            "The employee with the ID of ",
-            response.IDUpdate,
-            " has been successfully updater!!!!!"
-          );
-          }
-          beggining();
+            break;
+          default:
+            break;
         }
-      );
-    });
-  },700)
-
+        connection.query(
+          updateColumn,
+          [response.updateChange, response.IDUpdate],
+          function (error, result) {
+            if (error) {
+              console.log(
+                "There has been a mistake updating the employee: ",
+                error
+              );
+            } else {
+              console.log(
+                "The employee with the ID of ",
+                response.IDUpdate,
+                " has been successfully updater!!!!!"
+              );
+            }
+            beggining();
+          }
+        );
+      });
+  }, 700);
 }
