@@ -12,6 +12,7 @@ function beggining() {
     "View all employees by manager.",
     "Add employee.",
     "Add department.",
+    "Remove a department.",
     "Remove employee.",
     "Update employee role.",
     "Exit.",
@@ -40,10 +41,12 @@ function beggining() {
       } else if (response.choice == choices[4]) {
         addDepartment();
       } else if (response.choice == choices[5]) {
+        removeDepartment();
+      }else if (response.choice == choices[6]) {
         removeEmployee();
-      } else if (response.choice == choices[6]) {
-        updateEmployee();
       } else if (response.choice == choices[7]) {
+        updateEmployee();
+      } else if (response.choice == choices[8]) {
         //if we wish to end the application we close the connection
         connection.end();
       }
@@ -230,6 +233,57 @@ function addDepartment() {
       );
     });
 }
+//This is the function to remove a department
+function removeDepartment() {
+  function departmentQuery(){
+    connection.query(
+    "SELECT * FROM DEPARTMENT;",
+    function (error, result) {
+      if (error) {
+        console.log("There has been an error retrieving the department's",error);
+      }else{
+        console.table(result);
+      }
+    }
+
+  );
+  }
+  departmentQuery()
+  setTimeout(function(){
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the name of the department you wish to remove",
+          name: "departmentRemove",
+        },
+      ]) //Here is what I am going to do with the response.
+      .then((response) => {
+        let departmentRemoveHandler = response.departmentRemove;
+        departmentRemoveHandler = departmentRemoveHandler.toUpperCase();
+
+        connection.query(
+          "DELETE FROM DEPARTMENT WHERE DEPARTMENT_NAME =?;",[departmentRemoveHandler],
+          function (error, result) {
+            if (error) {
+              console.log("The department you have chosen does not exist", error);
+            } else {
+              console.log("The department has been removed succsesfully!!!");
+              departmentQuery();
+              setTimeout(function(){
+                beggining();
+              },400)
+            }
+          }
+
+        );
+
+      });
+
+  },500)
+
+}
+
 //This is the function where i remove an employee.
 function removeEmployee() {
   //Here i am getting all of the employee's of the company and displaying them so it can be easier for the user to search for the ID that is required.
