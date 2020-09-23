@@ -8,14 +8,16 @@ function beggining() {
   //Here we have my array of choices
   const choices = [
     "View all of the employees.",
-    "View employees by department.",
+    "View employees by role.",
     "View all employees by manager.",
+    "View the departments.",
     "Add employee.",
     "Add department.",
     "Add role",
-    "Remove a department.",
+    "Remove role",
+    "Remove department.",
     "Remove employee.",
-    "Update employee role.",
+    "Update employee.",
     "Exit.",
   ];
   //The start of the prompt
@@ -38,18 +40,22 @@ function beggining() {
       } else if (response.choice == choices[2]) {
         getManager();
       } else if (response.choice == choices[3]) {
-        addEmployee();
+        getDeparments();
       } else if (response.choice == choices[4]) {
-        addDepartment();
+        addEmployee();
       } else if (response.choice == choices[5]) {
-        addRole();
+        addDepartment();
       } else if (response.choice == choices[6]) {
-        removeDepartment();
+        addRole();
       } else if (response.choice == choices[7]) {
-        removeEmployee();
+        removeRole();
       } else if (response.choice == choices[8]) {
-        updateEmployee();
+        removeDepartment();
       } else if (response.choice == choices[9]) {
+        removeEmployee();
+      } else if (response.choice == choices[10]) {
+        updateEmployee();
+      } else if (response.choice == choices[11]) {
         //if we wish to end the application we close the connection
         console.log("BYE BYE!!!!");
         connection.end();
@@ -104,6 +110,19 @@ function getManager() {
   connection.query("SELECT * FROM EMPLOYEE WHERE MANAGER_ID=1", function (
     error,
 
+    result
+  ) {
+    if (error) {
+      console.log(error);
+    }
+    console.table(result);
+    beggining();
+  });
+}
+//Here is where we get all of the departments
+function getDeparments() {
+  connection.query("SELECT * FROM DEPARTMENT;", function (
+    error,
     result
   ) {
     if (error) {
@@ -358,6 +377,54 @@ function removeDepartment() {
       });
   }, 500);
 }
+function removeRole(){
+  function roleQuery() {
+  connection.query("SELECT * FROM ROLE;", function (error, result) {
+    if (error) {
+      console.log(
+        "There has been an error retrieving the department's",
+        error
+      );
+    } else {
+      console.table(result);
+    }
+  });
+}
+  roleQuery();
+setTimeout(function () {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the role you wish to remove",
+        name: "roleRemove",
+      },
+    ]) //Here is what I am going to do with the response.
+    .then((response) => {
+      let roleRemoveHandler = response.roleRemove;
+      roleRemoveHandler = roleRemoveHandler.toUpperCase();
+
+      connection.query(
+        "DELETE FROM DEPARTMENT WHERE DEPARTMENT_NAME =?;",
+        [departmentRemoveHandler],
+        function (error, result) {
+          if (error) {
+            console.log(
+              "The department you have chosen does not exist",
+              error
+            );
+          } else {
+            console.log("The department has been removed succsesfully!!!");
+            roleQuery();
+            setTimeout(function () {
+              beggining();
+            }, 400);
+          }
+        }
+      );
+    });
+}, 500);
+}
 
 //This is the function where i remove an employee.
 function removeEmployee() {
@@ -386,7 +453,11 @@ function removeEmployee() {
               response.employeeID,
               " Has been successfully removed!!!!!"
             );
-            beggining();
+            empoloyeeNoRestart()
+            setTimeout(function(){
+              beggining();
+            },200)
+            
           }
         );
       });
@@ -451,12 +522,18 @@ function updateEmployee() {
               );
             } else {
               console.log(
-                "The employee with the ID of ",
+                "The employee with the ID of",
                 response.IDUpdate,
-                " has been successfully updater!!!!!"
+                "has been successfully updated!!!!!"
               );
+              connection.query("SELECT * FROM EMPLOYEE WHERE ID=?", [response.IDUpdate],function(error,result){
+                console.table(result)
+              })
             }
-            beggining();
+            setTimeout(function(){
+              beggining();
+            },200)
+            
           }
         );
       });
